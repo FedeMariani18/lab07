@@ -5,12 +5,22 @@ import it.unibo.bank.api.BankAccount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static it.unibo.bank.impl.SimpleBankAccount.MANAGEMENT_FEE;
+import static it.unibo.bank.impl.StrictBankAccount.TRANSACTION_FEE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Test class for the {@link StrictBankAccount} class.
  */
 class TestStrictBankAccount {
+
+    private static final int DEFAULT_DEPOSIT = 100;
 
     // Create a new AccountHolder and a StrictBankAccount for it each time tests are executed.
     private AccountHolder mRossi;
@@ -21,7 +31,8 @@ class TestStrictBankAccount {
      */
     @BeforeEach
     public void setUp() {
-        fail("To be implemented");
+        this.mRossi = new AccountHolder("Mario", "Rossi", 1);
+        this.bankAccount = new StrictBankAccount(mRossi, 0.0);
     }
 
     /**
@@ -29,7 +40,9 @@ class TestStrictBankAccount {
      */
     @Test
     public void testInitialization() {
-        fail("To be implemented");
+        assertEquals(0.0, bankAccount.getBalance());
+        assertEquals(0, bankAccount.getTransactionsCount());
+        assertEquals(mRossi, bankAccount.getAccountHolder());
     }
 
     /**
@@ -37,7 +50,11 @@ class TestStrictBankAccount {
      */
     @Test
     public void testManagementFees() {
-        fail("To be implemented");
+        bankAccount.deposit(mRossi.getUserID(), DEFAULT_DEPOSIT);
+        bankAccount.chargeManagementFees(mRossi.getUserID());
+        assertEquals(DEFAULT_DEPOSIT - TRANSACTION_FEE - MANAGEMENT_FEE * bankAccount.getTransactionsCount(), bankAccount.getBalance());
+        assertEquals(0, bankAccount.getTransactionsCount());
+        bankAccount.withdraw(mRossi.getUserID(), bankAccount.getBalance());
     }
 
     /**
@@ -45,7 +62,14 @@ class TestStrictBankAccount {
      */
     @Test
     public void testNegativeWithdraw() {
-        fail("To be implemented");
+        try {
+            bankAccount.withdraw(mRossi.getUserID(), -1);
+            Assertions.fail("Depositing from a wrong account was possible, but should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals(0, bankAccount.getBalance()); // No money was deposited, balance is consistent
+            assertNotNull(e.getMessage()); // Non-null message
+            assertFalse(e.getMessage().isBlank()); // Not a blank or empty message
+        }
     }
 
     /**
@@ -53,6 +77,15 @@ class TestStrictBankAccount {
      */
     @Test
     public void testWithdrawingTooMuch() {
-        fail("To be implemented");
+        double balance = 0;
+        try {
+            balance = bankAccount.getBalance();
+            bankAccount.withdraw(mRossi.getUserID(), bankAccount.getBalance() + 1);
+            Assertions.fail("Depositing from a wrong account was possible, but should have thrown an exception");
+        } catch (IllegalArgumentException e) {
+            assertEquals(balance, bankAccount.getBalance()); // No money was withdraw, balance is consistent
+            assertNotNull(e.getMessage()); // Non-null message
+            assertFalse(e.getMessage().isBlank()); // Not a blank or empty message
+        }
     }
 }
