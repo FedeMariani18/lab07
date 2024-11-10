@@ -74,24 +74,31 @@ public final class MonthSorterNested implements MonthSorter {
     public Comparator<String> sortByDays() {
         return new Comparator<String>() {
             public int compare(String o1, String o2) {
-                int m1 = 0;
-                int m2 = 0;
-
+                int res = 0;
                 try {
-                    m1 = Month.fromString(o1).getnDays();
-                    m2 = Month.fromString(o2).getnDays();
+                    res = Integer.compare(Month.fromString(o1).getnDays(), Month.fromString(o2).getnDays());
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
                     System.exit(1); 
                 }
-                return (m1 < m2) ? -1 : ((m1 == m2) ? 0 : 1);
+                return res;
             }
-            
         };
     }
 
     @Override
     public Comparator<String> sortByOrder() {
-        return null;
+        return new Comparator<String>() {
+            public int compare(String o1, String o2) {
+                int res = 0;
+                try {
+                    res = Integer.compare(Month.fromString(o1).ordinal() , Month.fromString(o2).ordinal());
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                    System.exit(1); 
+                }
+                return res;
+            }
+        };
     }
 }

@@ -111,7 +111,7 @@ class TestMonthSorter {
                 }
             });
             for (int i = 0; i < TIMES; i++) {
-                final var shallowCopy = transform(expected, Function.identity());
+                final List<String> shallowCopy = transform(expected, Function.identity());
                 while (expected.equals(shallowCopy)) {
                     Collections.shuffle(shallowCopy, randomGenerator);
                 }
