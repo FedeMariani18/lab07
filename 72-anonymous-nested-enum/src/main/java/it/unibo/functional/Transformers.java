@@ -4,7 +4,6 @@ import it.unibo.functional.api.Function;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,7 +57,7 @@ public final class Transformers {
         return flattenTransform(base, new Function<I,Collection<? extends O>>() {
 
             @Override
-            public Collection<? extends O> call(I input) {
+            public Collection<? extends O> call(final I input) {
                 return List.of(transformer.call(input));
             } 
         });
@@ -77,17 +76,7 @@ public final class Transformers {
      * @param <I> type of the collection elements
      */
     public static <I> List<? extends I> flatten(final Iterable<? extends Collection<? extends I>> base) {
-        var result = new ArrayList<I>();
-        for (var e : base){
-            result.addAll(e);
-        }
-
-        flattenTransform(result, new Function<I,Collection<? extends I>>() {
-            public Collection<? extends I> call(I input) {
-                return List.of( Function.identity(input).call(input) );
-            }
-        });
-        return null;
+        return flattenTransform(base, Function.identity());
     }
 
     /**
@@ -104,12 +93,11 @@ public final class Transformers {
      * @param <I> elements type
      */
     public static <I> List<I> select(final Iterable<I> base, final Function<I, Boolean> test) {
-        flattenTransform(base, new Function<I,Collection<? extends Boolean>>() {
-            public Collection<? extends Boolean> call(I input) {
-                return List.of(test.call(input));
+        return flattenTransform(base, new Function<>() {
+            public Collection<? extends I> call(final I input) {
+                return test.call(input) ? List.of(input) : List.of();
             }
         });
-        return null;
     }
 
     /**
@@ -125,8 +113,8 @@ public final class Transformers {
      * @param <I> elements type
      */
     public static <I> List<I> reject(final Iterable<I> base, final Function<I, Boolean> test) {
-        return select(base, new Function<I,Boolean>() {
-            public Boolean call(I input) {
+        return select(base, new Function<>() {
+            public Boolean call(final I input) {
                 return !test.call(input);
             }
         });
